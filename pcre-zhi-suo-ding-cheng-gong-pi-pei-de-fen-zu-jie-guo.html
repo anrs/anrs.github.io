@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>ANRS' LOG - PCRE 之 ?> 锁定成功匹配的分组结果</title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="/theme/css/rdark.css" />
+	<link rel="stylesheet" type="text/css" href="/theme/css/main.css" />
+        <link href="/" type="application/atom+xml" rel="alternate" title="ANRS' LOG ATOM Feed" /><!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+<!-- Using MathJax, with the delimiters $ -->
+<!-- Conflict with pygments for the .mo and .mi -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  "HTML-CSS": {
+  styles: {
+  ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">ANRS' LOG <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
+            <li><a href="/pages/about.html">about</a></li>
+            <li class="active"><a href="/category/blog.html">blog</a></li>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="/pcre-zhi-suo-ding-cheng-gong-pi-pei-de-fen-zu-jie-guo.html" rel="bookmark"
+         title="Permalink to PCRE 之 ?> 锁定成功匹配的分组结果">PCRE 之 ?> 锁定成功匹配的分组结果</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2008-03-15T15:10:00+08:00">
+      Sat 15 March 2008
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/anrs.html">anrs</a>
+    </address>
+    <div class="category">
+        Category: <a href="/category/blog.html">blog</a>
+    </div>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <p>标题有点拗口，寒一个的说。先看个不涉及到 ?&gt; 的例子</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$txt</span> <span class="o">=</span> <span class="s">&#39;AK74&#39;</span><span class="p">;</span>
+<span class="nv">$txt</span> <span class="o">=~</span><span class="sr"> /((\w*)(\d+))/i</span><span class="p">;</span>
+<span class="k">print</span> <span class="nv">$1</span><span class="p">;</span>
+</pre></div>
+
+
+<p>打印结果是 AK74</p>
+<p>Regex 引擎首先用 \w<em> 去匹配字符串 AK74，</em> 修饰符的最长匹配原则导致 \w<em> 匹配到了整个字符串 AK74，接着 \d+ 上场匹配，由于 + 修饰符要求至少匹配一次，为大局考虑，\w</em> 不得不吐出一个已匹配到的字符 4 以满足 \d+ 的要求，所以最后结果就是 \w* 匹配到 AK7 而 \d+ 也成功匹配到了字符 4</p>
+<p>如果我们期望前面的分组匹配成功之后，无论其后匹配状况如何都不再吐出已匹配的结果，那就可以使用 ?&gt; 将分组中已匹配成功的结果锁定。</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$txt</span> <span class="o">=</span> <span class="s">&#39;AK74&#39;</span><span class="p">;</span>
+<span class="nv">$txt</span> <span class="o">=~</span><span class="sr"> /((?&gt;\w*)(\d+))/i</span><span class="p">;</span>
+<span class="k">print</span> <span class="nv">$1</span><span class="p">;</span>
+</pre></div>
+
+
+<p>运行上面的代码将收到“使用了未初始化值”的错误提示。</p>
+<p>同未使用 ?&gt; 的 Regex 表达式一样，\w<em> 首先匹配到了整个字符串 AK74，接着 \d+ 上场匹配，+ 要求 \w</em> 至少吐出一个字符以满足匹配，但是 ?&gt; 却自私的将 \w<em> 的匹配结果锁定，即 \w</em> 并没有吐出任何字符，仍然保留整个 AK74 字符串，结果导致 \d+ 匹配失败，最终整个 Regex 表达式匹配失败，所以打印 $1 时收到了错误提示。</p>
+<p>显而易见 ?&gt; 并不锁定失败的匹配结果，失败的匹配或空匹配也没什么需要锁定的内容</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$txt</span> <span class="o">=</span> <span class="s">&#39;AK74&#39;</span><span class="p">;</span>
+<span class="nv">$txt</span> <span class="o">=~</span><span class="sr"> /((?&gt;(MP5)*)(\d+))/i</span><span class="p">;</span>
+<span class="k">print</span> <span class="nv">$1</span><span class="p">;</span>
+</pre></div>
+
+
+<p>打印结果是 74</p>
+<p>因为 $txt 值中并不包含 MP5 字符串，所以一开始，(MP5)* 就匹配失败，接着 \d+ 上场匹配，跳过 AK 后，成功获得字符串 74，由于 * 修饰符允许空匹配，所以整个 Regex 表达式匹配成功。</p>
+<p>ps.  昨天把脖子拧了，睡觉还落枕，呀呀个呸的，今天只歪起脑壳做人了</p>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>ANRS' LOG - 无废话 GD 入门之绘制篇</title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="/theme/css/rdark.css" />
+	<link rel="stylesheet" type="text/css" href="/theme/css/main.css" />
+        <link href="/" type="application/atom+xml" rel="alternate" title="ANRS' LOG ATOM Feed" /><!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+<!-- Using MathJax, with the delimiters $ -->
+<!-- Conflict with pygments for the .mo and .mi -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  "HTML-CSS": {
+  styles: {
+  ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">ANRS' LOG <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
+            <li><a href="/pages/about.html">about</a></li>
+            <li class="active"><a href="/category/blog.html">blog</a></li>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="/wu-fei-hua-gd-ru-men-zhi-hui-zhi-pian.html" rel="bookmark"
+         title="Permalink to 无废话 GD 入门之绘制篇">无废话 GD 入门之绘制篇</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2008-03-20T08:02:00+08:00">
+      Thu 20 March 2008
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/anrs.html">anrs</a>
+    </address>
+    <div class="category">
+        Category: <a href="/category/blog.html">blog</a>
+    </div>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <p>GD::Image 提供了一系列的绘制函数，调用这些函数，就可以相当方便地绘制线条、矩形和椭圆等形状。先从点绘制开始。</p>
+<p>setPixel 函数接收像素点的座标位置和指定的颜色句柄，并绘制该像素点。</p>
+<p><code>setPixel $img 20, 20, $color;</code></p>
+<p>上面的代码调用 setPixel 函数，并用 \$color 句柄指定的颜色绘制 $img 中座标位置为 (20, 20) 的像素点。</p>
+<p>line 函数前四个参数，分别代表前始点座标位置和终止点座标位置，并在这两点间绘制一条线段。</p>
+<p><code>line $img 0, 0, 20, 20, $color;</code></p>
+<p>在 \$img 的 (0, 0) 点和 (20, 20) 点间用 $color 指定的颜色绘制一条直线。</p>
+<p>相应的 rectangle 函数在起始点和终止点间绘制一个矩形。</p>
+<p><code>rectangle $img 0, 0, 10, 10, $color;</code></p>
+<p>就相当于调用四次 line 函数，绘制一个封闭的矩形。</p>
+<div class="highlight"><pre><span></span><span class="n">line</span> <span class="nv">$img</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nv">$color</span><span class="p">;</span>
+<span class="n">line</span> <span class="nv">$img</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">$color</span><span class="p">;</span>
+<span class="n">line</span> <span class="nv">$img</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nv">$color</span><span class="p">;</span>
+<span class="n">line</span> <span class="nv">$img</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nv">$color</span><span class="p">;</span>
+</pre></div>
+
+
+<p>filledRectangle 函数也是绘制一个矩形，不同的是 filledRectangle 还要用指定的颜色填充这个矩形。</p>
+<p>openPolygon 函数用指定的颜色绘制一个封闭的形状，这个形状必须是封闭的，也就是说至少需要有三个端点，比如一个三角形。</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$polygon</span> <span class="o">=</span> <span class="k">new</span> <span class="nn">GD::</span><span class="n">Polygon</span><span class="p">;</span>
+<span class="n">addPt</span> <span class="nv">$polygon</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">;</span><span class="c1"># 第一个端点</span>
+<span class="n">addPt</span> <span class="nv">$polygon</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">;</span><span class="c1"># 第二个端点</span>
+<span class="n">addPt</span> <span class="nv">$polygon</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">;</span><span class="c1"># 第三个端点</span>
+<span class="n">addPt</span> <span class="nv">$polygon</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">;</span><span class="c1"># 第四个端点</span>
+<span class="n">openPolygon</span> <span class="nv">$img</span> <span class="nv">$polygon</span><span class="p">,</span> <span class="nv">$black</span><span class="p">;</span>
+</pre></div>
+
+
+<p>上面代码会绘制一个与之前调用 rectangle 函数绘制出的矩形完全相同形状，当然如果是规则的形状，那么更多的情况下使用 rectangle 函数就能完全满足需要了，openPolygon 更多是用于绘制不规则的封闭图形。像 filledRectangle 函数一样，filledPolygon 函数也是用于绘制并填充一个封闭图形。</p>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
+</html>

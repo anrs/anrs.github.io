@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>ANRS' LOG - PCRE/Python 下的 re 细节(1)</title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="/theme/css/rdark.css" />
+	<link rel="stylesheet" type="text/css" href="/theme/css/main.css" />
+        <link href="/" type="application/atom+xml" rel="alternate" title="ANRS' LOG ATOM Feed" /><!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+<!-- Using MathJax, with the delimiters $ -->
+<!-- Conflict with pygments for the .mo and .mi -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  "HTML-CSS": {
+  styles: {
+  ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">ANRS' LOG <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
+            <li><a href="/pages/about.html">about</a></li>
+            <li class="active"><a href="/category/blog.html">blog</a></li>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="/pcrepython-xia-de-re-xi-jie-1.html" rel="bookmark"
+         title="Permalink to PCRE/Python 下的 re 细节(1)">PCRE/Python 下的 re 细节(1)</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2009-09-27T23:23:00+08:00">
+      Sun 27 September 2009
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/anrs.html">anrs</a>
+    </address>
+    <div class="category">
+        Category: <a href="/category/blog.html">blog</a>
+    </div>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <p>O’Reilly 的 cookbook 系列差不多都是适合摆在手边准备随时查阅的工具书，期间充斥着大量的技术细节。今年七月的时候 rex 同学(一、二)还送了这本热腾腾的 Regular Expressions Cookbook 给我，可惜一直没来得及看，想当初甚至还雄心勃勃准备和 rex 一起翻译这本书的，但最后还是由于这样那样的原因导致计划搁浅，我真是愧对 rex 的信任。为了对得起 rex 同学的美貌与智慧，现在我准备花时间读一读，至少每天一个 recipe 嘛，然后把其中一些关于 PCRE 和 Python 的亮点都记录在这里，以飨诸君。:)</p>
+<p>不废话，上 Recipe…</p>
+<p>希望匹配目标文本中的 $()*+.?[\^{| 这12个符号时，就必须对表达式中的相应字符进行转义，意即表达式应该是这个样子滴：\$()*+.\?[\\^{|</p>
+<p>除了上面 12 个特殊字符外，其余的特殊字符就无需进行转义了。不过，即使在无需进行转义的特殊字符前添加了转义符 \ 也是不会报错的，只是多余的 \ 可能会使表达式变得难以理解。再就是 PCRE 支持 \Q, \E 对，意思是 \Q 和 \E 间的特殊字符会被自动转义，也就是说表达式 \Q$()*+.?[\^{|\E 和第1个表达式是等价的。</p>
+<p>除反斜线 \ 和 ] 外， [...] 中的特殊字符也不必手工转义，比较特殊的情况是 ^ 和 – 这两个。当 ^ 是 [...] 中第一个出现的字符时，表示不匹配后面出现的字符，而 – 出现在文数字中间时，则表示从 xxx 到 xxx 的含义。因此欲匹配这两种情形下的 ^ 和 – 时是需要转义的。</p>
+<p>忽略大小写敏感</p>
+<p>默认情况下表达式是大小写敏感的，但可以通过 (?i) 来忽略大小写敏感。例如表达式 (?i)ab 可以匹配的目标文本包括 ab, AB, aB 和 Ab</p>
+<p>PCRE 同时支持 (?-i) 来关闭 (?i) 的忽略效果，使 (?-i) 后面的表达式字符重回大小写敏感的默认状态。</p>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>ANRS' LOG - 无废话 GD 入门之创建 Image</title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="/theme/css/rdark.css" />
+	<link rel="stylesheet" type="text/css" href="/theme/css/main.css" />
+        <link href="/" type="application/atom+xml" rel="alternate" title="ANRS' LOG ATOM Feed" /><!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+<!-- Using MathJax, with the delimiters $ -->
+<!-- Conflict with pygments for the .mo and .mi -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  "HTML-CSS": {
+  styles: {
+  ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">ANRS' LOG <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
+            <li><a href="/pages/about.html">about</a></li>
+            <li class="active"><a href="/category/blog.html">blog</a></li>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="/wu-fei-hua-gd-ru-men-zhi-chuang-jian-image.html" rel="bookmark"
+         title="Permalink to 无废话 GD 入门之创建 Image">无废话 GD 入门之创建 Image</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2008-03-18T13:19:00+08:00">
+      Tue 18 March 2008
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/anrs.html">anrs</a>
+    </address>
+    <div class="category">
+        Category: <a href="/category/blog.html">blog</a>
+    </div>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <p>利用 new 函数创建 Image 对象</p>
+<p>new 函数有好几种重载形式，包括</p>
+<div class="highlight"><pre><span></span><span class="k">new</span> <span class="nn">GD::</span><span class="n">Image</span><span class="p">(</span><span class="nv">$width</span><span class="p">,</span> <span class="nv">$height</span><span class="p">,</span> <span class="nv">$truecolor</span><span class="p">);</span><span class="c1"># 指定图像尺寸和是否应用 24 位色</span>
+<span class="k">new</span> <span class="nn">GD::</span><span class="n">Image</span><span class="p">(</span><span class="n">FILEHANDLE</span><span class="p">);</span><span class="c1"># 从指定的文件句柄创建</span>
+<span class="k">new</span> <span class="nn">GD::</span><span class="n">Image</span><span class="p">(</span><span class="nv">$filename</span><span class="p">);</span><span class="c1"># 从指定的文件创建</span>
+<span class="k">new</span> <span class="nn">GD::</span><span class="n">Image</span><span class="p">(</span><span class="nv">$data</span><span class="p">);</span><span class="c1"># 从指定的 Image Data 创建(调用 png $img; 生成 $data)</span>
+</pre></div>
+
+
+<p>在第一种重载形式中，如果省略参数调用 new 函数，GD 默认创建 64*64 尺寸的 Image 对象，而省略 truecolor 参数则默认创建 8 位色的 Image 对象。</p>
+<p>如果 new 函数创建 Image 对象失败，那么就返回一个 undef 值</p>
+<p>还可以调用 newFromPng 函数，以明确指定从 png 文件创建 Image 对象</p>
+<p><code>my $img = newFromPng GD::Image('test.png');</code></p>
+<p>或者从一个指定的文件句柄创建 Image 对象</p>
+<div class="highlight"><pre><span></span><span class="nb">open</span><span class="p">(</span><span class="n">PNG</span><span class="p">,</span> <span class="s">&#39;test.png&#39;</span><span class="p">)</span> <span class="o">||</span> <span class="nb">die</span><span class="p">;</span>
+<span class="k">my</span> <span class="nv">$img</span> <span class="o">=</span> <span class="n">newFromPng</span> <span class="n">GD:Image</span><span class="p">(</span><span class="o">\*</span><span class="n">PNG</span><span class="p">)</span> <span class="o">||</span> <span class="nb">die</span><span class="p">;</span>
+<span class="nb">close</span> <span class="n">PNG</span><span class="p">;</span>
+</pre></div>
+
+
+<p>如果不为 newFromPng 函数指定 truecolor 参数，那么从 png 文件创建出的 Image 对象，其 truecolor 属性（24 位色或者是 8 位色）与源文件相同。</p>
+<p>从 JPEG/GIF 文件创建 Image 对象也有相应的 newFromJpeg/newFromGif 函数，但是这里有些许不同。</p>
+<p>newFromJpeg 总是返回 24 位色的 Image 对象，除非显示指定 0 作为函数的第二个参数。
+newFromGif 总是返回 8 位色的 Image 对象，除非显示指定 1 作为函数的第二个参数。</p>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
+</html>

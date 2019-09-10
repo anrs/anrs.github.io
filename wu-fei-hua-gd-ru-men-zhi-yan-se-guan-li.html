@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>ANRS' LOG - 无废话 GD 入门之颜色管理</title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="/theme/css/rdark.css" />
+	<link rel="stylesheet" type="text/css" href="/theme/css/main.css" />
+        <link href="/" type="application/atom+xml" rel="alternate" title="ANRS' LOG ATOM Feed" /><!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+<!-- Using MathJax, with the delimiters $ -->
+<!-- Conflict with pygments for the .mo and .mi -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  "HTML-CSS": {
+  styles: {
+  ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">ANRS' LOG <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
+            <li><a href="/pages/about.html">about</a></li>
+            <li class="active"><a href="/category/blog.html">blog</a></li>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="/wu-fei-hua-gd-ru-men-zhi-yan-se-guan-li.html" rel="bookmark"
+         title="Permalink to 无废话 GD 入门之颜色管理">无废话 GD 入门之颜色管理</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2008-03-19T07:51:00+08:00">
+      Wed 19 March 2008
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/anrs.html">anrs</a>
+    </address>
+    <div class="category">
+        Category: <a href="/category/blog.html">blog</a>
+    </div>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <p>用 colorAllocate 函数创建颜色句柄</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$r</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">my</span> <span class="nv">$g</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">my</span> <span class="nv">$b</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">my</span> <span class="nv">$black</span> <span class="o">=</span> <span class="n">colorAllocate</span> <span class="nv">$img</span> <span class="nv">$r</span><span class="p">,</span> <span class="nv">$g</span><span class="p">,</span> <span class="nv">$b</span><span class="p">;</span>
+</pre></div>
+
+
+<p>上面的代码用先前创建的 Image 对象生成 RGB 值分别为 0, 0, 0 的一个颜色句柄</p>
+<p>或者还可以用 colorAllocateAlpha 函数创建一个指定透明程度的颜色句柄</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$alpha</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">my</span> <span class="nv">$black</span> <span class="o">=</span> <span class="n">colorAllocateAlpha</span> <span class="nv">$img</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">$alpha</span><span class="p">;</span>
+</pre></div>
+
+
+<p>第四个参数 \$alpha 指定透明程度，聚值范围 0 到 127，0 表示完全不透明，127 则是完全透明</p>
+<p>用 colorDeallocate 函数消除一个已存在的颜色句柄，之后就可以重新设置该句柄，该函数不存在返回值。</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$black</span> <span class="o">=</span> <span class="n">colorAllocate</span> <span class="nv">$img</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">;</span>
+<span class="n">colorDeallocate</span> <span class="nv">$img</span> <span class="nv">$black</span><span class="p">;</span>
+<span class="nv">$black</span> <span class="o">=</span> <span class="n">colorAllocate</span> <span class="nv">$img</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">;</span>
+</pre></div>
+
+
+<p>通过 rgb 函数从指定的颜色句柄返回相应的 RGB 值</p>
+<p><code>my ($r, $g, $b) = rgb $img $black;</code></p>
+<p>上面的代码获取了 \$black 颜色句柄具体的 RGB 值。如果再配合 getPixel 函数，可以得到指定 Image 对象的指定位置的 RGB 值。</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$color</span> <span class="o">=</span> <span class="n">getPixel</span> <span class="nv">$img</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">;</span>
+<span class="k">my</span> <span class="p">(</span><span class="nv">$r</span><span class="p">,</span> <span class="nv">$g</span><span class="p">,</span> <span class="nv">$b</span><span class="p">)</span> <span class="o">=</span> <span class="n">rgb</span> <span class="nv">$img</span> <span class="nv">$color</span><span class="p">;</span>
+</pre></div>
+
+
+<p>上面代码就演示了获取 \$img 的 (100, 100) 位置像素点的 RGB 值</p>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
+</html>

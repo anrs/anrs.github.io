@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>ANRS' LOG - unpack 的三种实现</title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="/theme/css/rdark.css" />
+	<link rel="stylesheet" type="text/css" href="/theme/css/main.css" />
+        <link href="/" type="application/atom+xml" rel="alternate" title="ANRS' LOG ATOM Feed" /><!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+<!-- Using MathJax, with the delimiters $ -->
+<!-- Conflict with pygments for the .mo and .mi -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  "HTML-CSS": {
+  styles: {
+  ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">ANRS' LOG <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
+            <li><a href="/pages/about.html">about</a></li>
+            <li class="active"><a href="/category/blog.html">blog</a></li>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="/unpack-de-san-chong-shi-xian.html" rel="bookmark"
+         title="Permalink to unpack 的三种实现">unpack 的三种实现</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2009-09-08T09:13:00+08:00">
+      Tue 08 September 2009
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/anrs.html">anrs</a>
+    </address>
+    <div class="category">
+        Category: <a href="/category/blog.html">blog</a>
+    </div>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <p>解析文件或者网络数据时，基本的操作就是 unpack 流内容，下面演示了三种不同的 unpack 手法，分别使用了 re, struct.unpack 和 list slice，最后是三种手法的性能比较。</p>
+<p>代码：</p>
+<div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="k">def</span> <span class="nf">split_by_unpack</span><span class="p">(</span><span class="n">txt</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">struct</span>
+    <span class="n">baseformat</span> <span class="o">=</span> <span class="err">‘</span><span class="mi">5</span><span class="n">s</span> <span class="mi">3</span><span class="n">x</span> <span class="mi">8</span><span class="n">s</span> <span class="mi">8</span><span class="n">s</span><span class="err">’</span>
+    <span class="n">format</span> <span class="o">=</span> <span class="err">‘</span><span class="o">%</span><span class="n">s</span> <span class="o">%</span><span class="n">ds</span><span class="err">’</span> <span class="o">%</span> <span class="p">(</span><span class="n">baseformat</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span> <span class="err">–</span> <span class="n">struct</span><span class="o">.</span><span class="n">calcsize</span><span class="p">(</span><span class="n">baseformat</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">txt</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_split_by_re</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">re</span>
+    <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">r</span><span class="err">‘</span><span class="p">(</span><span class="o">.</span><span class="p">{</span><span class="mi">5</span><span class="p">})(</span><span class="err">?</span><span class="p">:</span><span class="o">.</span><span class="p">{</span><span class="mi">3</span><span class="p">})(</span><span class="o">.</span><span class="p">{</span><span class="mi">8</span><span class="p">})(</span><span class="o">.</span><span class="p">{</span><span class="mi">8</span><span class="p">})(</span><span class="o">.*</span><span class="p">)</span><span class="err">’</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__split_by_re</span><span class="p">(</span><span class="n">txt</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">r</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">r</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">r</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">__split_by_re</span>
+<span class="n">split_by_re</span> <span class="o">=</span> <span class="n">_split_by_re</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">split_by_slice</span><span class="p">(</span><span class="n">txt</span><span class="p">):</span>
+    <span class="n">cuts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">24</span><span class="p">]</span>
+    <span class="n">pieces</span> <span class="o">=</span> <span class="p">[</span><span class="n">txt</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">cuts</span><span class="p">,</span> <span class="n">cuts</span> <span class="o">+</span> <span class="p">[</span><span class="bp">None</span><span class="p">])]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> 
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="err">‘</span><span class="n">__main__</span><span class="err">’</span><span class="p">:</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="err">‘</span><span class="mi">12345</span><span class="c1">###abcdefghABCDEFGH###’</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1000000</span><span class="p">):</span>
+        <span class="n">split_by_slice</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+        <span class="n">split_by_unpack</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+        <span class="n">split_by_re</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+</pre></div>
+
+
+<p>上面代码演示了将文本 unpack 为长度分别是 5, 3(忽略), 8, 8, k 的子串，下面是对三个函数进行百万次调用后的性能分析：</p>
+<p>screenshot_052</p>
+<p>其实三种手法还是有一些差异的，struct.unpack 是基于 bytes 来拆分，而 re 和 list slice 是基于字符拆分的，所以在非 ASCII 的情况下要特别注意。</p>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
+</html>

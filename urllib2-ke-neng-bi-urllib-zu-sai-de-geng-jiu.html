@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>ANRS' LOG - Urllib2 可能比 Urllib 阻塞得更久</title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="/theme/css/rdark.css" />
+	<link rel="stylesheet" type="text/css" href="/theme/css/main.css" />
+        <link href="/" type="application/atom+xml" rel="alternate" title="ANRS' LOG ATOM Feed" /><!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+<!-- Using MathJax, with the delimiters $ -->
+<!-- Conflict with pygments for the .mo and .mi -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  "HTML-CSS": {
+  styles: {
+  ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">ANRS' LOG <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
+            <li><a href="/pages/about.html">about</a></li>
+            <li class="active"><a href="/category/blog.html">blog</a></li>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="/urllib2-ke-neng-bi-urllib-zu-sai-de-geng-jiu.html" rel="bookmark"
+         title="Permalink to Urllib2 可能比 Urllib 阻塞得更久">Urllib2 可能比 Urllib 阻塞得更久</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2012-02-11T13:19:00+08:00">
+      Sat 11 February 2012
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/anrs.html">anrs</a>
+    </address>
+    <div class="category">
+        Category: <a href="/category/blog.html">blog</a>
+    </div>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <p>socket._fileobject 的读缓冲区默认大小(_rbufsize)是 8192，也就是说调用 readline() 时，默认情况下它会先读 8KB 的数据到 buffer，然后再从中取出一行数据返回给调用方。如果关闭了读缓冲，readline() 会一个字节接一个字节的读数据，只要读到 \n 就立即返回。</p>
+<p>假设一个 HTTP 响应头中的 Transfer-Encoding 是 chunked，并且每块 chunk 都是一行小于 8KB 的数据，然后客户端希望一收到 chunk 就立即对其进行处理。但是因为 readline() 希望先读 8KB 的数据，只要不够 8KB 就一直阻塞，直到收到足够的 chunk 为止(或者 EOF)。</p>
+<p>而 urllib.urlopen 和 urllib2.urlopen 创建 socket._fileobject 的行为是不一样的，urllib 关闭了读缓冲，而 urllib2 则使用了默认的 8KB 大小的缓冲区。</p>
+<p>所以第一次调用 urllib2.urlopen(URL).readline() 时，会比第一次调用 urllib.urlopen(URL).readline() 慢得多。如果服务器针对第二块 chunk 的处理需要较长时间的话，那 urllib2 的 readline() 就会一直阻塞在第一次的 readline() 调用上，哪怕已经收到了一行数据也是如此。要解决这个问题只要在 readline() 前把 response.fp._rbufsize 设为 0 就可以了。</p>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
+</html>

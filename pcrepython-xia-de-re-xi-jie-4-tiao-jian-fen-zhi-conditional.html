@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>ANRS' LOG - PCRE/Python 下的 re 细节(4) — 条件分支(conditional)</title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="/theme/css/rdark.css" />
+	<link rel="stylesheet" type="text/css" href="/theme/css/main.css" />
+        <link href="/" type="application/atom+xml" rel="alternate" title="ANRS' LOG ATOM Feed" /><!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+<!-- Using MathJax, with the delimiters $ -->
+<!-- Conflict with pygments for the .mo and .mi -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  "HTML-CSS": {
+  styles: {
+  ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">ANRS' LOG <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
+            <li><a href="/pages/about.html">about</a></li>
+            <li class="active"><a href="/category/blog.html">blog</a></li>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="/pcrepython-xia-de-re-xi-jie-4-tiao-jian-fen-zhi-conditional.html" rel="bookmark"
+         title="Permalink to PCRE/Python 下的 re 细节(4) — 条件分支(conditional)">PCRE/Python 下的 re 细节(4) — 条件分支(conditional)</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2009-10-27T16:16:00+08:00">
+      Tue 27 October 2009
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/anrs.html">anrs</a>
+    </address>
+    <div class="category">
+        Category: <a href="/category/blog.html">blog</a>
+    </div>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <p>所谓条件分支，就是“当 x 成功捕获的话，则执行多选分支 y，否则执行多选分支 z”，也就是说这个东西在表达式中实现了 if/then/else 的功能。条件分支的语法比较类似于多选分支，只是更复杂，像这样：…(?(1)then|else)…</p>
+<p>(?(1)… 就表示开始一个条件分支的匹配，数字 1 的意思是测试整个表达式中第 1 个反向引用是否有参与匹配，如果有则匹配表达式 then，否则匹配表达式 else。看 recipe 2.17 中表达式 (a)?b(?(1)c|d) 的匹配过程。(a)?b(?(1)c|d) 如期望的那样可以匹配目标文本 abc、bd、abd，但匹配不到 bc。</p>
+<p>匹配目标文本 abc 时，(a)? 匹配成功，\1 捕获到字符 a，然后前推当前表达式字符到 b，再次匹配成功，继续前推当前表达式字符。这时引擎看到 (?(1) 就识别出这是一个条件分支匹配，于是测试反向引用 1 有没有参与匹配，发现有，于是执行 | 前的部分，也就是匹配字符 c，依然匹配成功，于是整个表达式宣告匹配成功。</p>
+<p>匹配目标文本 bd 的过程：(a)? 匹配失败，\1 没有捕获到任何内容，然后匹配过程与匹配 abc 时类似，直到当引擎在条件分支中发现反向引用 1 没有参与匹配，会将 | 后的部分 d 拿来进行匹配，还是匹配成功，于是整个表达式匹配成功。匹配 bc 时则是当引擎发现反向引用 1 没有参与匹配时，就将 | 后的 d 拿来匹配时，结果匹配失败，于是整个表达式也相应匹配失败。</p>
+<p>目标文本 abd 的匹配过程是比较有趣的，首先 (a)? 匹配成功，\1 捕获到字符 a，前推当前表达式和当前目标文本，b 和 b 匹配成功，继续前推表达式和目标文本，因为 \1 有内容，所以当前表达式字符为 c，c 和 d 匹配失败，但并不意味着整个表达式也匹配失败了，不要忘了 (a)? 中的 ? 是可以回溯的，所以当前表达式字符和当前目标文本字符均发生回溯，接下来的匹配过程就跟匹配 bd 的过程完全一致了，最终整个表达式还是匹配成功。而如果期望 abd 匹配失败的话，只要在 (a)? 前增加一个 ^ 锚就好了。</p>
+<p>有个值得注意的地方是表达式 (a)?b(?(1)c|d) 中 (a)? 的 ? 是在括号外面的，如果写成 (a?)b(?(1)c|d) 的话，即使 (a?) 匹配失败，但 (?(1) 还是会返回 true，因为 (a?) 始终都被认为是有参与匹配的，所以 (?(1)c|d) 总是 | 前的 c 参与后续的匹配过程。</p>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
+</html>

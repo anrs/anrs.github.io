@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>ANRS' LOG - 过程和计算，线性递归和尾递归</title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="/theme/css/rdark.css" />
+	<link rel="stylesheet" type="text/css" href="/theme/css/main.css" />
+        <link href="/" type="application/atom+xml" rel="alternate" title="ANRS' LOG ATOM Feed" /><!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+<!-- Using MathJax, with the delimiters $ -->
+<!-- Conflict with pygments for the .mo and .mi -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  "HTML-CSS": {
+  styles: {
+  ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">ANRS' LOG <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
+            <li><a href="/pages/about.html">about</a></li>
+            <li class="active"><a href="/category/blog.html">blog</a></li>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="/guo-cheng-he-ji-suan-xian-xing-di-gui-he-wei-di-gui.html" rel="bookmark"
+         title="Permalink to 过程和计算，线性递归和尾递归">过程和计算，线性递归和尾递归</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2008-09-11T06:09:00+08:00">
+      Thu 11 September 2008
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/anrs.html">anrs</a>
+    </address>
+    <div class="category">
+        Category: <a href="/category/blog.html">blog</a>
+    </div>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <p>上次和 olio 提到了尾递归和线性递归的问题，今天仔细分解了一下。 首先是分清楚递归过程和递归计算这两个概念。前者论述的是语法形式，说明过程定义直接或间接调用了过程自身；后者则是说过程定义中的计算进展方式，而不是相应过程书写上的语法形式。因此，递归过程可能产生迭代的计算进展方式，也有可能产生递归的计算进展方式，这取决于你递归过程的书写形式。 上面几句有些抽象，用个例子说明就比较清楚了！下面是两种不同的计算进展方式的求解 n! 的递归过程</p>
+<ol>
+<li>递归计算进展方式的递归过程：</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="n">define</span> <span class="p">(</span><span class="n">factorial</span> <span class="n">n</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="o">=</span> <span class="n">n</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="mi">1</span>
+    <span class="p">(</span><span class="o">*</span> <span class="n">n</span> <span class="p">(</span><span class="n">factorial</span> <span class="p">(</span><span class="o">-</span> <span class="n">n</span> <span class="mi">1</span><span class="p">)))))</span>
+</pre></div>
+
+
+<ol>
+<li>迭代计算进展方式的递归过程：</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="n">define</span> <span class="p">(</span><span class="n">factorial</span> <span class="n">n</span><span class="p">)</span>
+  <span class="p">(</span><span class="n">define</span> <span class="p">(</span><span class="n">iter</span> <span class="n">product</span> <span class="n">counter</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="o">&gt;</span> <span class="n">counter</span> <span class="n">n</span><span class="p">)</span>
+      <span class="n">product</span>
+      <span class="p">(</span><span class="n">iter</span> <span class="p">(</span><span class="o">*</span> <span class="n">counter</span> <span class="n">product</span><span class="p">)</span> <span class="p">(</span><span class="o">+</span> <span class="n">counter</span> <span class="mi">1</span><span class="p">))))</span>
+  <span class="p">(</span><span class="n">iter</span> <span class="mi">1</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+
+
+<p>在我用 erl 实现的第一种递归过程上，在计算到 40000! 时机器便不行了，明显迟滞；而 erl 实现的第二种递归过程上，除了依然能跑出结果外，连命令行都没有假死现象，而且速度明显比第一种更快！ 让我们来看下为什么为出现这两种不同的情况。在第一种我们称之为递归计算进展方式的递归过程中，我们要算出 n! 就必须先计算出 (n - 1)! 后再将计算结果乘上 n 得出要求的 n! 的值。比如在求 6! 时的代换过程如下：</p>
+<div class="highlight"><pre><span></span><span class="mi">1</span><span class="p">.</span> <span class="p">(</span><span class="n">factorial</span> <span class="mi">6</span><span class="p">)</span>
+<span class="mi">2</span><span class="p">.</span> <span class="p">(</span><span class="o">*</span> <span class="mi">6</span> <span class="p">(</span><span class="n">factorial</span> <span class="mi">5</span><span class="p">))</span>
+<span class="mi">3</span><span class="p">.</span> <span class="p">(</span><span class="o">*</span> <span class="mi">6</span> <span class="p">(</span><span class="o">*</span> <span class="mi">5</span> <span class="p">(</span><span class="n">factorial</span> <span class="mi">4</span><span class="p">)))</span>
+<span class="mi">4</span><span class="p">.</span> <span class="p">(</span><span class="o">*</span> <span class="mi">6</span> <span class="p">(</span><span class="o">*</span> <span class="mi">5</span> <span class="p">(</span><span class="o">*</span> <span class="mi">4</span> <span class="n">factorial</span><span class="p">(</span><span class="mi">3</span><span class="p">))))</span>
+<span class="mi">5</span><span class="p">.</span> <span class="p">(</span><span class="o">*</span> <span class="mi">6</span> <span class="p">(</span><span class="o">*</span> <span class="mi">5</span> <span class="p">(</span><span class="o">*</span> <span class="mi">4</span> <span class="p">(</span><span class="o">*</span> <span class="mi">3</span> <span class="n">factorial</span><span class="p">(</span><span class="mi">2</span><span class="p">)))))</span>
+<span class="mi">6</span><span class="p">.</span> <span class="p">(</span><span class="o">*</span> <span class="mi">6</span> <span class="p">(</span><span class="o">*</span> <span class="mi">5</span> <span class="p">(</span><span class="o">*</span> <span class="mi">4</span> <span class="p">(</span><span class="o">*</span> <span class="mi">3</span> <span class="p">(</span><span class="o">*</span> <span class="mi">2</span> <span class="n">factorial</span><span class="p">(</span><span class="mi">1</span><span class="p">))))))</span>
+</pre></div>
+
+
+<p>经过以上六步之后才算完成代换，之后是相应的归约过程：</p>
+<div class="highlight"><pre><span></span><span class="mi">7</span><span class="p">.</span> <span class="p">(</span><span class="o">*</span> <span class="mi">6</span> <span class="p">(</span><span class="o">*</span> <span class="mi">5</span> <span class="p">(</span><span class="o">*</span> <span class="mi">4</span> <span class="p">(</span><span class="o">*</span> <span class="mi">3</span> <span class="p">(</span><span class="o">*</span> <span class="mi">2</span> <span class="mi">1</span><span class="p">)))))</span>
+<span class="mi">8</span><span class="p">.</span> <span class="p">(</span><span class="o">*</span> <span class="mi">6</span> <span class="p">(</span><span class="o">*</span> <span class="mi">5</span> <span class="p">(</span><span class="o">*</span> <span class="mi">4</span> <span class="p">(</span><span class="o">*</span> <span class="mi">3</span> <span class="mi">2</span><span class="p">))))</span>
+<span class="mi">9</span><span class="p">.</span> <span class="p">(</span><span class="o">*</span> <span class="mi">6</span> <span class="p">(</span><span class="o">*</span> <span class="mi">5</span> <span class="p">(</span><span class="o">*</span> <span class="mi">4</span> <span class="mi">6</span><span class="p">)))</span>
+<span class="mi">10</span><span class="p">.</span> <span class="p">(</span><span class="o">*</span> <span class="mi">6</span> <span class="p">(</span><span class="o">*</span> <span class="mi">5</span> <span class="mi">24</span><span class="p">))</span>
+<span class="mi">11</span><span class="p">.</span> <span class="p">(</span><span class="o">*</span> <span class="mi">6</span> <span class="mi">120</span><span class="p">)</span>
+<span class="mi">12</span><span class="p">.</span> <span class="mi">720</span>
+</pre></div>
+
+
+<p>可以看到整个计算进展的链条是非常之长的，并且每一步都必须被保存才能计算出相应的值，可以想见在这种情形下计算 40000! 所耗用的内存空间规模之巨。而在迭代计算进展方式的递归过程中，情况就简单得多了：</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="n">factorial</span> <span class="mi">6</span><span class="p">)</span>
+<span class="p">(</span><span class="n">fact</span><span class="o">-</span><span class="n">iter</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">6</span><span class="p">)</span>
+<span class="p">(</span><span class="n">fact</span><span class="o">-</span><span class="n">iter</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">6</span><span class="p">)</span>
+<span class="p">(</span><span class="n">fact</span><span class="o">-</span><span class="n">iter</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">6</span><span class="p">)</span>
+<span class="p">(</span><span class="n">fact</span><span class="o">-</span><span class="n">iter</span> <span class="mi">6</span> <span class="mi">4</span> <span class="mi">6</span><span class="p">)</span>
+<span class="p">(</span><span class="n">fact</span><span class="o">-</span><span class="n">iter</span> <span class="mi">24</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">)</span>
+<span class="p">(</span><span class="n">fact</span><span class="o">-</span><span class="n">iter</span> <span class="mi">120</span> <span class="mi">6</span> <span class="mi">6</span><span class="p">)</span>
+<span class="p">(</span><span class="n">fact</span><span class="o">-</span><span class="n">iter</span> <span class="mi">720</span> <span class="mi">7</span> <span class="mi">6</span><span class="p">)</span>
+<span class="mi">720</span>
+</pre></div>
+
+
+<p>综上所见，迭代计算过程就是那种状态（就像上面的 product/counter）可以用固定数目的状态变量描述的过程，而在递归计算过程中，这些状态（每一次调用时 n 的值）都被维护在运算链条中的某一段上。 最后，我们把迭代计算进展方式的递归类型称为尾递归，而把递归计算进展方式的递归类型称为线性递归。</p>
+<p>p.s. 上面 Scheme 代码偶在 ubuntu8.10 上用 erl5.5.5 实现；但我在 WinXP + VS2005 上写同样的 C# 代码的话，尾递归反而比线性递归更耗时，甚至能计算出结果的阶乘值都比线性递归更小，不知道为什么会出现这种情况！</p>
+<p>erl 的线性递归：</p>
+<div class="highlight"><pre><span></span><span class="nf">fac</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span>
+  <span class="mi">1</span><span class="p">;</span>
+<span class="nf">fac</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span> <span class="o">-&gt;</span>
+  <span class="nv">N</span> <span class="o">*</span> <span class="n">fac</span><span class="p">(</span><span class="nv">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">).</span>
+</pre></div>
+
+
+<p>erl 的尾递归：</p>
+<div class="highlight"><pre><span></span><span class="nf">fac</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span> <span class="o">-&gt;</span>
+  <span class="n">fac_iter</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">N</span><span class="p">).</span>
+
+<span class="nf">fac_iter</span><span class="p">(</span><span class="nv">Product</span><span class="p">,</span> <span class="nv">Counter</span><span class="p">,</span> <span class="nv">Max_Count</span><span class="p">)</span> <span class="o">-&gt;</span>
+  <span class="k">if</span>
+    <span class="nv">Counter</span> <span class="o">&gt;</span> <span class="nv">Max_Count</span> <span class="o">-&gt;</span>
+      <span class="nv">Product</span><span class="p">;</span>
+    <span class="n">true</span> <span class="o">-&gt;</span>
+      <span class="n">fac_iter</span><span class="p">(</span><span class="nv">Product</span> <span class="o">*</span> <span class="nv">Counter</span><span class="p">,</span> <span class="nv">Counter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">Max_Count</span><span class="p">)</span>
+  <span class="k">end</span><span class="p">.</span>
+</pre></div>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
+</html>

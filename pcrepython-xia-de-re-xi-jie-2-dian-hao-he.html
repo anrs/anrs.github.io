@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>ANRS' LOG - PCRE/Python 下的 re 细节(2) — 点号、^ 和 $</title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="/theme/css/rdark.css" />
+	<link rel="stylesheet" type="text/css" href="/theme/css/main.css" />
+        <link href="/" type="application/atom+xml" rel="alternate" title="ANRS' LOG ATOM Feed" /><!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+<!-- Using MathJax, with the delimiters $ -->
+<!-- Conflict with pygments for the .mo and .mi -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  "HTML-CSS": {
+  styles: {
+  ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">ANRS' LOG <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
+            <li><a href="/pages/about.html">about</a></li>
+            <li class="active"><a href="/category/blog.html">blog</a></li>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="/pcrepython-xia-de-re-xi-jie-2-dian-hao-he.html" rel="bookmark"
+         title="Permalink to PCRE/Python 下的 re 细节(2) — 点号、^ 和 $">PCRE/Python 下的 re 细节(2) — 点号、^ 和 $</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2009-09-29T02:55:00+08:00">
+      Tue 29 September 2009
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/anrs.html">anrs</a>
+    </address>
+    <div class="category">
+        Category: <a href="/category/blog.html">blog</a>
+    </div>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <p>古时候正则表达式被用来处理一行一行读入的文件内容，那时候是不会存在“匹配一个换行符”这样的需求滴。后来神说这个可以有，于是世间就出现了单行模式。我猜可能是由于拉伯伯是学语言(自然语言，不是计算机语言)出身的缘故，才会给出 single line 这么个让普罗大众有些目眩神迷的称谓。要避免出现大海的感觉，还是得余大的点号通配模式比较靠谱一点(Python re 下面叫 dotall 模式)。关于多行模式和单行模式(点号通配模式)的区别这里就不再赘述了，有兴趣的可以猛击“single line 和 multiline 一毛钱关系都没有”查看详情。下面就直接给出两种实现点号通配模式(单行模式)的办法：</p>
+<ol>
+<li>在表达式外部指定点号通配模式，Python 下用 re.S 参数，这个地球人都晓得滴。</li>
+<li>在表达式内部用 (?s) 模式修饰符，这个就比较优雅了，从表达式本身就可以看出处于点号通配模式下，推荐使用。</li>
+</ol>
+<p>相应的，激活多行模式也有两种手法：</p>
+<ol>
+<li>用 re.M 参数</li>
+<li>用 (?m) 模式修饰符</li>
+</ol>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
+</html>

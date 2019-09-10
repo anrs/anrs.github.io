@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>ANRS' LOG - << 文本</title>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="/theme/css/rdark.css" />
+	<link rel="stylesheet" type="text/css" href="/theme/css/main.css" />
+        <link href="/" type="application/atom+xml" rel="alternate" title="ANRS' LOG ATOM Feed" /><!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+<!-- Using MathJax, with the delimiters $ -->
+<!-- Conflict with pygments for the .mo and .mi -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  "HTML-CSS": {
+  styles: {
+  ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">ANRS' LOG <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
+            <li><a href="/pages/about.html">about</a></li>
+            <li class="active"><a href="/category/blog.html">blog</a></li>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="/wen-ben.html" rel="bookmark"
+         title="Permalink to << 文本"><< 文本</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2008-03-12T10:07:00+08:00">
+      Wed 12 March 2008
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/anrs.html">anrs</a>
+    </address>
+    <div class="category">
+        Category: <a href="/category/blog.html">blog</a>
+    </div>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <p>Perl &lt;&lt; 会原样呈现分界符中的内容，这就有点类似于 C# 中加了 @ 前缀的字符串。</p>
+<div class="highlight"><pre><span></span><span class="k">print</span> <span class="s">&lt;&lt;</span><span class="dl">END</span><span class="s"></span>
+<span class="s">      what&#39;s this</span>
+<span class="dl">END</span>
+<span class="p">;</span>
+</pre></div>
+
+
+<p>打印结果是 "    what's this"</p>
+<p>其中 END 就称为 &lt;&lt; 分界符，该分界符可以被引号引起，根据不同的引号 &lt;&lt; 文本就会相应的具有（不具有）变量内插的能力，甚至是成为 shell 命令执行的能力。省略引号的裸分界符被视为被双引号引起。</p>
+<p>结束分界符需要是一行中唯一的内容，并且要顶行书写。</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$txt</span> <span class="o">=</span> <span class="s">&quot;what&#39;s this&quot;</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="nb">shift</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">print</span> <span class="o">&lt;&lt;</span><span class="k">END</span>
+    <span class="nv">$txt</span>
+  <span class="k">END</span>
+  <span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>上面的代码会收到一个“未找到结束分界符”的错误提示。正确的写法应该是</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$txt</span> <span class="o">=</span> <span class="s">&quot;what&#39;s this&quot;</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="nb">shift</span><span class="p">)</span> <span class="p">{</span>
+   <span class="k">print</span> <span class="s">&lt;&lt;</span><span class="dl">END</span><span class="s"></span>
+<span class="s">     $txt</span>
+<span class="dl">END</span>
+   <span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>打印结果"    what's this"</p>
+<p>由于 &lt;&lt; 文本虽然被书写到了不同的行，但本质上它仍然是一条语句，所以结束分界符下面一行有一个独立的分号。如果觉得独立分号影响美观的话，也可以将其写到起始分界符的末尾。</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$txt</span> <span class="o">=</span> <span class="s">&quot;what&#39;s this&quot;</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="nb">shift</span><span class="p">)</span> <span class="p">{</span>
+   <span class="k">print</span> <span class="s">&lt;&lt;</span><span class="dl">END</span><span class="s">;</span>
+<span class="s">     $txt</span>
+<span class="dl">END</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>当用反引号引起起始分界符时，Perl 会将 &lt;&lt; 文本依序发送到 shell 执行。</p>
+<div class="highlight"><pre><span></span><span class="k">print</span> <span class="o">&lt;&lt;</span><span class="sb">`END`</span><span class="p">;</span>
+      <span class="n">cd</span>
+      <span class="n">ls</span>
+<span class="k">END</span>
+</pre></div>
+
+
+<p>上面代码会打印出当前登录用户家目录下的内容。</p>
+<p>可以用空字符作为分界符，这样当遇到第一个独立空行（包括空格在内的任何内容都没有的行）时 &lt;&lt; 就会退出。</p>
+<div class="highlight"><pre><span></span><span class="k">print</span> <span class="o">&lt;&lt;</span><span class="s">&quot;&quot;</span><span class="p">;</span>
+      <span class="n">what</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">this</span>
+
+<span class="c1">#</span>
+</pre></div>
+
+
+<p>如果使用空字符作为分界符，最好将其用引号引起，否则如果打开 warnings 开关就会收到一个警告消息。空字符作为分界符时 &lt;&lt; 后面可以跟一个或多个空格。</p>
+<div class="highlight"><pre><span></span><span class="k">print</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+      <span class="n">what</span><span class="s">&#39;s this</span>
+
+<span class="s"># 合法</span>
+
+<span class="s">print &lt;&lt; END;</span>
+<span class="s">      what&#39;</span><span class="n">s</span> <span class="n">this</span>
+<span class="k">END</span>
+
+<span class="c1"># 非法</span>
+</pre></div>
+
+
+<p>还可以将 &lt;&lt; 与 Regex 联合使用。</p>
+<div class="highlight"><pre><span></span><span class="k">my</span> <span class="nv">$capture</span><span class="o">=</span> <span class="o">&lt;&lt;</span><span class="k">END</span> <span class="o">=~</span><span class="sr"> /(?:mod_)(.*)/i</span><span class="p">;</span>
+   <span class="n">apache</span>
+   <span class="n">mod_perl</span>
+   <span class="n">mod_python</span>
+<span class="k">END</span>
+<span class="k">print</span> <span class="nv">$1</span><span class="p">;</span>
+</pre></div>
+
+
+<p>打印结果 perl</p>
+<p>ps. 当用到 &lt;&lt; 时，GNU Emacs 21.3.1 版本默认的 perl_mode 会有一个很大的问题</p>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
+</html>
